@@ -106,13 +106,20 @@ def sendAlertUsingSetList(setlist,dictionary, number):
     for word in setlist:
         for key in range(1,len(dictionary.keys())+1):
             key = str(key)
+            #subjectLine = dictionary[key][0]
             bodyStr = dictionary[key][2]
             nameOfSender = dictionary[key][1]
             if word in bodyStr:
                 strToSend = "Got "+ word+" from " + nameOfSender
-
                 #print "Should be sending "+strToSend
                 text(number, strToSend)
+            #elif word in subjectLine:
+                #strToSend = "Got "+ word+" from " + nameOfSender
+                #text(number, strToSend)
+            elif word in nameOfSender:
+                strToSend = word+ " sent message"
+                text(number, strToSend)
+
 
 # Need to put texting and emailing in these functions
 def text(number, content):
@@ -141,8 +148,9 @@ def email2 (outGoingEmail, outGoingPswd, recievingEmail, content):
     mail.close()
 
 def main():
+    #get info from server 
     server= imaplib.IMAP4_SSL('imap.gmail.com')
-
+    #log in to the email using username and password
     server.login('hackathonhmc2015@gmail.com', '4boizlive')
 
     code, mailboxen= server.list()
