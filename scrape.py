@@ -27,7 +27,7 @@ def process_inbox(server):
         if rv != "OK":
             print "error"
             return
-        print data[0][0][0]
+        #print data[0][0][0]
         msg = email.message_from_string(data[0][1])
         # create message object from first email
         tos = msg.get_all('to', [])
@@ -51,16 +51,38 @@ def process_inbox(server):
             text = body[0]
 
         else:
-            print msg.get_payload()
+            text = "no text"
+            #print msg.get_payload()
 
         #print 'Subject %s: %s' % (num, msg['Subject'])
         subject = msg['Subject']
-
-        rtn[num] = [subject, incomingAddress, text]
-
+        #print num
+        #print (subject, incomingAddress, text)
+        rtn[num] = (subject, incomingAddress, text)
     return rtn
 
 
+
+def findFromPhone(dictionary):
+    setList = []
+    deleteList = []
+    print dictionary.keys()
+    for key in range(1,len(dictionary.keys())):
+        key = str(key)
+        #this is the incomingAddress
+        print dictionary[key][1]
+        bodyStr = dictionary[key][2]
+        bodyWords = bodyStr.split()
+        print bodyWords[0]
+        if (dictionary[key][1] == '4256475206@txt.att.net'):
+            if (bodyWords[0] == "Set"):
+                setList.append(bodyWords[1])
+            elif (bodyWords[0] == "Delete"):
+                deleteList.append(bodyWords[1])
+    #print setList
+    #print deleteList
+    return (setList, deleteList)
+    
 
 
 
@@ -79,7 +101,7 @@ def text (number, content):
     mail.close()
 
 
-def email (outGoingEmail, outGoingPswd, recievingEmail, content):
+def email2 (outGoingEmail, outGoingPswd, recievingEmail, content):
     content = 'did this make it to ur phone'
     mail = smtplib.SMTP('smtp.gmail.com', 587)
     mail.ehlo()
@@ -90,22 +112,32 @@ def email (outGoingEmail, outGoingPswd, recievingEmail, content):
 
     mail.close()
 
+def main():
+    server= imaplib.IMAP4_SSL('imap.gmail.com')
 
-server= imaplib.IMAP4_SSL('imap.gmail.com')
+    server.login('hackathonhmc2015@gmail.com', '4boizlive')
 
-server.login('hackathonhmc2015@gmail.com', '4boizlive')
+    code, mailboxen= server.list()
 
-code, mailboxen= server.list()
+    rv , data = server.select("inbox")
 
-rv , data = server.select("inbox")
+    dictOfMail = process_inbox(server)
 
+    listOfSets = findFromPhone(dictOfMail)
 
-#keyword = process_inbox(server)
+    setList = listOfSets[0]
 
-text('4256475206@txt.att.net', "We recieved your text.  We set the marker to be")
-print "text"
-server.close()
-server.logout()
+    deleteList = listOfSets[1]
+
+    print setList
+
+    print deleteList
+    
+    text('4256475206@txt.att.net', "We recieved your text.  We set the marker to be")
+    print "text"
+    server.close()
+    server.logout()
+if __name__ == "__main__" : main()
 
 
 
