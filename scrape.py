@@ -96,6 +96,11 @@ def findFromPhone(dictionary):
     #print deleteList
     return (setList, deleteList)
 
+def deleteFromSetList(setList, deleteList):
+    for word in deleteList:
+        if word in setList:
+            setList.remove(word)
+
 
 def sendAlertUsingSetList(setlist,dictionary, number):
     for word in setlist:
@@ -104,18 +109,22 @@ def sendAlertUsingSetList(setlist,dictionary, number):
             bodyStr = dictionary[key][2]
             nameOfSender = dictionary[key][1]
             if word in bodyStr:
-                strToSend = "You got an email about: "+word+"from " + nameOfSender
+                strToSend = "Got "+ word+" from " + nameOfSender
+
+                #print "Should be sending "+strToSend
                 text(number, strToSend)
 
 # Need to put texting and emailing in these functions
-def text (number, content):
+def text(number, content):
     mail = smtplib.SMTP('smtp.gmail.com', 587)
     mail.ehlo()
     mail.starttls()
     mail.login('hackathonhmc2015@gmail.com','4boizlive')
-    
+    content2 = str(content)
+    content3 = content2 + ""
     mail.sendmail( 'hackathonhmc2015@gmail.com', '13604211517@tmomail.net', content )
-    mail.sendmail( 'hackathonhmc2015@gmail.com', number, content )
+    
+    mail.sendmail( 'hackathonhmc2015@gmail.com', number, content3)
 
     mail.close()
 
@@ -127,7 +136,7 @@ def email2 (outGoingEmail, outGoingPswd, recievingEmail, content):
     mail.starttls()
 
     mail.login(outGoingEmail, outGoingPswd)
-    mail.sendmail(outGoingEmail, recievingEmail, content)
+    mail.sendmail(outGoingEmail, recievingEmail, str(content))
 
     mail.close()
 
@@ -149,12 +158,9 @@ def main():
     deleteList = listOfSets[1]
 
     sendAlertUsingSetList(setList, dictOfMail, "4256475206@txt.att.net")
-
-    print setList
-
-    print deleteList
     
-    text('4256475206@txt.att.net', "We recieved your text.  We set the marker to be")
+    deleteFromSetList(setList, deleteList)
+    
     print "text"
     server.close()
     server.logout()
