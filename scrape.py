@@ -19,7 +19,7 @@ def process_inbox(server):
         print "error"
         return
 
-    
+    rtn = {}
     for num in data[0].split():
       #data is the first email
       #split into list of all the words in that email 
@@ -27,34 +27,68 @@ def process_inbox(server):
         if rv != "OK":
             print "error"
             return
-
-
+        print data[0][0][0]
         msg = email.message_from_string(data[0][1])
         # create message object from first email
         tos = msg.get_all('to', [])
-        ccs = msg.get_all('cc', [])
+        #ccs = msg.get_all('cc', [])
         resent_tos = msg.get_all('resent-to', [])
-        resent_ccs = msg.get_all('resent-cc', [])
+        #resent_ccs = msg.get_all('resent-cc', [])
 
-        all_recipients = getaddresses(tos + ccs + resent_tos + resent_ccs)
+        all_recipients = getaddresses(tos + resent_tos)
         tuple = all_recipients[0]
-        print "From: " + tuple[1]
-        print "To: " + tuple[0]
+        incomingAddress = tuple[1]
+
+        #print "From: " + tuple[1]
+        #print "To: " + tuple[0]
 
         # get body of the message 
         if msg.is_multipart():
             body = []
             for payload in msg.get_payload():
                 body.append(payload.get_payload())
-            print 'Body: '+ (body[0])
+            #print 'Body: '+ (body[0])
+            text = body[0]
 
         else:
             print msg.get_payload()
 
-        print 'Subject %s: %s' % (num, msg['Subject'])
+        #print 'Subject %s: %s' % (num, msg['Subject'])
+        subject = msg['Subject']
+
+        rtn[num] = [subject, incomingAddress, text]
+
+    return rtn
 
 
 
+
+
+
+# Need to put texting and emailing in these functions
+def text (number, content):
+    content = 'did this make it to ur phone'
+    mail = smtplib.SMTP('smtp.gmail.com', 587)
+    mail.ehlo()
+    mail.starttls()
+    mail.login('hackathonhmc2015@gmail.com','4boizlive')
+    
+    mail.sendmail( 'hackathonhmc2015@gmail.com', '13604211517@tmomail.net', content )
+    mail.sendmail( 'hackathonhmc2015@gmail.com', number, content )
+
+    mail.close()
+
+
+def email (outGoingEmail, outGoingPswd, recievingEmail, content):
+    content = 'did this make it to ur phone'
+    mail = smtplib.SMTP('smtp.gmail.com', 587)
+    mail.ehlo()
+    mail.starttls()
+
+    mail.login(outGoingEmail, outGoingPswd)
+    mail.sendmail(outGoingEmail, recievingEmail, content)
+
+    mail.close()
 
 
 server= imaplib.IMAP4_SSL('imap.gmail.com')
@@ -66,29 +100,12 @@ code, mailboxen= server.list()
 rv , data = server.select("inbox")
 
 
+#keyword = process_inbox(server)
 
-process_inbox(server)
-
-
-
-
-
-
+text('4256475206@txt.att.net', "We recieved your text.  We set the marker to be")
+print "text"
 server.close()
 server.logout()
 
 
-# Need to put texting and emailing in these functions
-#def text (number, carrier, content):
-#def email (outGoingEmail, outGoingPswd, recievingEmail, content):
 
-content = 'did this make it to ur phone'
-mail = smtplib.SMTP('smtp.gmail.com', 587)
-mail.ehlo()
-mail.starttls()
-mail.login('hackathonhmc2015@gmail.com','4boizlive')
-mail.sendmail('kylesuversucks@gmail.com', 'alexmitchell1234@gmail.com', content)
-mail.sendmail( 'hackathonhmc2015@gmail.com', '13604211517@tmomail.net', content )
-mail.sendmail( 'hackathonhmc2015@gmail.com', '4256475206@mms.txt.net', content )
-
-mail.close()
