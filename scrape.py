@@ -10,14 +10,19 @@ from email.utils import getaddresses
 
 def process_inbox(server):
     
+    """ Accesses a mailbox for an email 
+        Scrapes the message senders and body of the messages  
+    """
     rv, data = server.search(None, "All")
+    # rv tells us if the search was successful
     if rv != "OK":
         print "error"
         return
 
     
     for num in data[0].split():
-      
+      #data is the first email
+      #split into list of all the words in that email 
         rv, data= server.fetch(num, '(RFC822)')
         if rv != "OK":
             print "error"
@@ -25,6 +30,7 @@ def process_inbox(server):
 
 
         msg = email.message_from_string(data[0][1])
+        # create message object from first email
         tos = msg.get_all('to', [])
         ccs = msg.get_all('cc', [])
         resent_tos = msg.get_all('resent-to', [])
@@ -35,7 +41,7 @@ def process_inbox(server):
         print "From: " + tuple[1]
         print "To: " + tuple[0]
 
-
+        # get body of the message 
         if msg.is_multipart():
             body = []
             for payload in msg.get_payload():
